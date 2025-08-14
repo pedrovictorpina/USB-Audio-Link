@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <AssemblyTitle>Audio Celular PC</AssemblyTitle>
+    <AssemblyDescription>Transfere áudio do celular Android para o PC via USB</AssemblyDescription>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <!-- Removido PackageReference desnecessário que trazia dependências vulneráveis -->
+
+</Project>
