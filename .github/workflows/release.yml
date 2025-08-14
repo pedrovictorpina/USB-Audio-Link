@@ -1,0 +1,71 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versão do release (ex.: 1.0.0)"
+        required: true
+        type: string
+      prerelease:
+        description: "Marcar como prerelease?"
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build & Publish (win-x64, single-file)
+        run: >
+          dotnet publish -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:PublishTrimmed=true
+
+      - name: Verify artifact path
+        shell: pwsh
+        run: |
+          $path = "bin/Release/net8.0/win-x64/publish/AudioCelularPC.exe"
+          if (-not (Test-Path $path)) {
+            Write-Error "Artifact not found at $path"
+          } else {
+            Write-Host "Found: $path"
+          }
+
+      - name: Create GitHub Release and upload asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version && format('v{0}', github.event.inputs.version) || github.ref_name }}
+          name: ${{ github.event.inputs.version && format('USB-Audio-Link v{0}', github.event.inputs.version) || github.ref_name }}
+          body: |
+            USB-Audio-Link para Windows (x64)
+
+            Instruções de uso:
+            1. Ative a Depuração USB no Android
+            2. Conecte o cabo USB (MTP/Transferência de arquivos)
+            3. Execute o AudioCelularPC.exe e escolha o modo desejado
+
+            Na primeira execução, o scrcpy será baixado automaticamente.
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease || false }}
+          files: |
+            bin/Release/net8.0/win-x64/publish/AudioCelularPC.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
